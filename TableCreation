@@ -1,0 +1,207 @@
+-- To create a database called : "CIS5004"
+IF NOT EXISTS ( SELECT name FROM sys.databases WHERE name = N'CIS5004' ) CREATE DATABASE [CIS5004]; 
+Go
+
+-- Incase we need to drop tables to add, drop, or make a correction to a column to the tables
+-- Drop tables in reverse order to avoid foreign key constraints
+
+-- Drop dependent tables first
+DROP TABLE IF EXISTS StudentCourses;
+DROP TABLE IF EXISTS StudentHighSchoolGrades;
+DROP TABLE IF EXISTS StudentHighSchoolCourses;
+DROP TABLE IF EXISTS Students;
+DROP TABLE IF EXISTS StudentNationality;
+DROP TABLE IF EXISTS StudentCountry;
+DROP TABLE IF EXISTS StudentCity;
+DROP TABLE IF EXISTS StudentPlaceOfBirth;
+
+-- Drop Researchers table and its dependent tables
+DROP TABLE IF EXISTS ResearcherCity;
+DROP TABLE IF EXISTS ResearcherCountry;
+DROP TABLE IF EXISTS ResearcherPlaceOfBirth;
+DROP TABLE IF EXISTS ResearcherNationality;
+DROP TABLE IF EXISTS ResearcherGrants;
+DROP TABLE IF EXISTS Researchers;
+
+-- Drop Courses and Grants tables
+DROP TABLE IF EXISTS Courses;
+DROP TABLE IF EXISTS Grants;
+
+-- Drop PlaceOfBirth, Nationality, City, and Country tables
+DROP TABLE IF EXISTS PlaceOfBirth;
+DROP TABLE IF EXISTS Nationality;
+DROP TABLE IF EXISTS City;
+DROP TABLE IF EXISTS Country;
+
+-- Create PlaceOfBirth Table
+CREATE TABLE PlaceOfBirth (
+    PlaceOfBirthID INT PRIMARY KEY,
+    PlaceOfBirthName VARCHAR(255)
+);
+
+-- Create Country Table
+CREATE TABLE Country (
+    CountryID INT PRIMARY KEY,
+    CountryName VARCHAR(255)
+);
+
+-- Create City Table
+CREATE TABLE City (
+    CityID INT PRIMARY KEY,
+    CityName VARCHAR(255),
+    CountryID INT,
+    FOREIGN KEY (CountryID) REFERENCES Country(CountryID)
+);
+
+-- Create Nationality Table
+CREATE TABLE Nationality (
+    NationalityID INT PRIMARY KEY,
+    NationalityName VARCHAR(255)
+);
+
+-- Create Students Table
+CREATE TABLE Students (
+    StudentID INT PRIMARY KEY,
+    Name VARCHAR(50),
+    PlaceOfBirthID INT,
+    DateOfBirth DATE,
+    HomeSchool VARCHAR(50),
+    ContactNumber BIGINT,
+    RecommendationLetter VARCHAR(3),
+    InvitationReceived VARCHAR(3),
+    FOREIGN KEY (PlaceOfBirthID) REFERENCES PlaceOfBirth(PlaceOfBirthID)
+);
+
+-- Create StudentPlaceOfBirth Table
+CREATE TABLE StudentPlaceOfBirth (
+    StudentID INT PRIMARY KEY,
+    PlaceOfBirthID INT,
+    FOREIGN KEY (StudentID) REFERENCES Students(StudentID),
+    FOREIGN KEY (PlaceOfBirthID) REFERENCES PlaceOfBirth(PlaceOfBirthID)
+);
+
+-- Create StudentCity Table
+CREATE TABLE StudentCity (
+    StudentID INT,
+    CityID INT,
+    PRIMARY KEY (StudentID, CityID),
+    FOREIGN KEY (StudentID) REFERENCES Students(StudentID),
+    FOREIGN KEY (CityID) REFERENCES City(CityID)
+);
+
+-- Create StudentCountry Table
+CREATE TABLE StudentCountry (
+    StudentID INT PRIMARY KEY,
+    CountryID INT,
+    FOREIGN KEY (StudentID) REFERENCES Students(StudentID),
+    FOREIGN KEY (CountryID) REFERENCES Country(CountryID)
+);
+
+-- Create StudentNationality Table
+CREATE TABLE StudentNationality (
+    StudentID INT,
+    NationalityID INT,
+    PRIMARY KEY (StudentID, NationalityID),
+    FOREIGN KEY (StudentID) REFERENCES Students(StudentID),
+    FOREIGN KEY (NationalityID) REFERENCES Nationality(NationalityID)
+);
+
+-- Create StudentCourses Table
+CREATE TABLE StudentCourses (
+    StudentID INT,
+    CourseCode VARCHAR(30),
+    Grade VARCHAR(10),
+    PRIMARY KEY (StudentID, CourseCode),
+    FOREIGN KEY (StudentID) REFERENCES Students(StudentID),
+    FOREIGN KEY (CourseCode) REFERENCES Courses(CourseCode)
+);
+
+-- Create StudentHighSchoolCourses Table
+CREATE TABLE HighSchoolCourses (
+    HighSchoolCourseCode VARCHAR(30) PRIMARY KEY,
+    HighSchoolCourseName VARCHAR(100)
+);
+
+-- Create StudentHighSchoolData table
+CREATE TABLE StudentHighSchoolData (
+    StudentID INT,
+    HighSchoolCourseCode VARCHAR(30),
+    Grade VARCHAR(2),
+    PRIMARY KEY (StudentID, HighSchoolCourseCode),
+    FOREIGN KEY (StudentID) REFERENCES Students(StudentID),
+    FOREIGN KEY (HighSchoolCourseCode) REFERENCES HighSchoolCourses(HighSchoolCourseCode)
+);
+
+-- Create Researchers Table
+CREATE TABLE Researchers (
+    ResearcherID INT PRIMARY KEY,
+    Name VARCHAR(50),
+    PlaceOfBirthID INT,
+    DateOfBirth DATE,
+    HomeUniversity VARCHAR(50),
+    ContactNumber BIGINT,
+    RequiredFund FLOAT,
+    Proposal VARCHAR(500),
+    FOREIGN KEY (PlaceOfBirthID) REFERENCES PlaceOfBirth(PlaceOfBirthID)
+);
+
+-- Create ResearcherCity Table
+CREATE TABLE ResearcherCity (
+    ResearcherID INT,
+    CityID INT,
+    PRIMARY KEY (ResearcherID, CityID),
+    FOREIGN KEY (ResearcherID) REFERENCES Researchers(ResearcherID),
+    FOREIGN KEY (CityID) REFERENCES City(CityID)
+);
+
+-- Create ResearcherCountry Table
+CREATE TABLE ResearcherCountry (
+    ResearcherID INT PRIMARY KEY,
+    CountryID INT,
+    FOREIGN KEY (ResearcherID) REFERENCES Researchers(ResearcherID),
+    FOREIGN KEY (CountryID) REFERENCES Country(CountryID)
+);
+
+-- Create ResearcherPlaceOfBirth Table
+CREATE TABLE ResearcherPlaceOfBirth (
+    ResearcherID INT PRIMARY KEY,
+    PlaceOfBirthID INT,
+    FOREIGN KEY (ResearcherID) REFERENCES Researchers(ResearcherID),
+    FOREIGN KEY (PlaceOfBirthID) REFERENCES PlaceOfBirth(PlaceOfBirthID)
+);
+
+-- Create ResearcherNationality Table
+CREATE TABLE ResearcherNationality (
+    ResearcherID INT,
+    NationalityID INT,
+    PRIMARY KEY (ResearcherID, NationalityID),
+    FOREIGN KEY (ResearcherID) REFERENCES Researchers(ResearcherID),
+    FOREIGN KEY (NationalityID) REFERENCES Nationality(NationalityID)
+);
+
+-- Create ResearcherGrants Table
+CREATE TABLE ResearcherGrants (
+    ResearcherID INT,
+    GrantID INT,
+    PRIMARY KEY (ResearcherID, GrantID),
+    FOREIGN KEY (ResearcherID) REFERENCES Researchers(ResearcherID),
+    FOREIGN KEY (GrantID) REFERENCES Grants(GrantID)
+);
+
+-- Create Courses Table
+CREATE TABLE Courses (
+    CourseCode VARCHAR(30) PRIMARY KEY,
+    CourseTitle VARCHAR(50),
+    HostUniversity VARCHAR(50),
+    Duration VARCHAR(30),
+    Type VARCHAR(30)
+);
+
+-- Create Grants Table
+CREATE TABLE Grants (
+    GrantID INT PRIMARY KEY,
+    GrantTitle VARCHAR(50),
+    AvailableFund FLOAT,
+    Duration VARCHAR(30)
+);
+
