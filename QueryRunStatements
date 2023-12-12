@@ -1,0 +1,74 @@
+-- Insert values into the data dictionary table
+SELECT
+	schemas.name AS SchemaName,
+	tables.name AS TableName,
+	columns.name AS ColumnName,
+	types.name AS DataTypeName,
+	columns.max_length,
+	columns.precision,
+	columns.scale,
+	columns.is_nullable
+FROM sys.tables
+INNER JOIN sys.columns
+ON tables.object_id = columns.object_id
+INNER JOIN sys.types
+ON types.user_type_id = columns.user_type_id
+INNER JOIN sys.schemas
+ON schemas.schema_id = tables.schema_id
+WHERE tables.is_ms_shipped = 0;
+
+-- Display Tables and Values
+SELECT * FROM PlaceOfBirth;
+SELECT * FROM Country;
+SELECT * FROM City;
+SELECT * FROM Nationality;
+SELECT * FROM Students;
+SELECT * FROM StudentCity;
+SELECT * FROM StudentPlaceOfBirth
+SELECT * FROM StudentNationality;
+SELECT * FROM StudentCountry;
+SELECT * FROM StudentCourses;
+SELECT * FROM HighSchoolCourses;
+SELECT * FROM StudentHighSchoolData;
+SELECT * FROM Researchers;
+SELECT * FROM ResearcherCity;
+SELECT * FROM ResearcherPlaceOfBirth;
+SELECT * FROM ResearcherNationality;
+SELECT * FROM ResearcherCountry;
+SELECT * FROM ResearcherGrants;
+SELECT * FROM Courses;
+SELECT * FROM Grants;
+
+-- Aggregate Functions
+SELECT HomeUniversity AS "Home University",
+       COUNT(*) AS "Total Researchers"
+FROM Researchers
+GROUP BY HomeUniversity;
+
+-- Shows Few Records and uses Wildcard operators
+SELECT *
+FROM students
+WHERE Name LIKE '%a%';
+
+SELECT *
+FROM researchers
+WHERE Name LIKE '%s%';
+
+-- Inner join function
+SELECT Students.StudentID, Students.Name, Students.PlaceOfBirthID, Students.DateOfBirth, Students.HomeSchool, Students.ContactNumber, Students.RecommendationLetter, Students.InvitationReceived,
+       City.CityName, Nationality.NationalityName
+FROM Students
+INNER JOIN StudentCity ON Students.StudentID = StudentCity.StudentID
+INNER JOIN City ON StudentCity.CityID = City.CityID
+INNER JOIN StudentNationality ON Students.StudentID = StudentNationality.StudentID
+INNER JOIN Nationality ON StudentNationality.NationalityID = Nationality.NationalityID;
+
+-- Outer join function
+SELECT Researchers.ResearcherID, Researchers.Name, Researchers.PlaceOfBirthID, Researchers.DateOfBirth, Researchers.HomeUniversity, Researchers.ContactNumber, Researchers.RequiredFund, Researchers.Proposal,
+       City.CityName, Nationality.NationalityName
+FROM Researchers
+LEFT OUTER JOIN ResearcherCity ON Researchers.ResearcherID = ResearcherCity.ResearcherID
+LEFT OUTER JOIN City ON ResearcherCity.CityID = City.CityID
+LEFT OUTER JOIN ResearcherNationality ON Researchers.ResearcherID = ResearcherNationality.ResearcherID
+LEFT OUTER JOIN Nationality ON ResearcherNationality.NationalityID = Nationality.NationalityID;
+
